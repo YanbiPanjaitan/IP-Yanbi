@@ -1,0 +1,32 @@
+[
+  {
+    "username": "admin",
+    "email": "admin@jalanin.com",
+    "password": "admin123",
+    "google_id": null
+  },
+  {
+    "username": "staff1",
+    "email": "staff1@jalanin.com",
+    "password": "password123",
+    "google_id": null
+  },
+  {
+    "username": "staff2",
+    "email": "staff2@jalanin.com",
+    "password": "password123",
+    "google_id": null
+  },
+  {
+    "username": "googleuser1",
+    "email": "user1@gmail.com",
+    "password": "",
+    "google_id": "109372847102938471029"
+  },
+  {
+    "username": "googleuser2",
+    "email": "user2@gmail.com",
+    "password": "",
+    "google_id": "115629384756192837465"
+  }
+]
