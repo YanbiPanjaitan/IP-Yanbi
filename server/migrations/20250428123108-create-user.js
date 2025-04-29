@@ -15,22 +15,12 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
         unique: true,
+        allowNull: false,
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: true,
-      },
-      google_id: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true,
-      },
-      provider: {
-        type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: "manual",
       },
       createdAt: {
         allowNull: false,

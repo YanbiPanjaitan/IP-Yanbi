@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      User.hasMany(models.Favorite, {foreignKey: "userId"});
       User.hasMany(models.Review, {foreignKey: "userId"});
     }
   }
@@ -36,69 +35,30 @@ module.exports = (sequelize, DataTypes) => {
       },
       email: {
         type: DataTypes.STRING,
+        unique: true,
         allowNull: false,
-        unique: {
-          msg: "Email already in use",
-        },
         validate: {
-          notNull: {
-            msg: "Email is required",
-          },
-          notEmpty: {
-            msg: "Email is required",
-          },
-          isEmail: {
-            msg: "Email format invalid",
-          },
+          notNull: {msg: "Email is required"},
+          notEmpty: {msg: "Email is required"},
+          isEmail: {msg: "Email must be in a valid format"},
         },
       },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          eitherPasswordOrGoogleId() {
-            if (!this.password && !this.google_id) {
-              throw new Error("Either password or Google ID must be provided");
-            }
-          },
+          notNull: {msg: "Password is required"},
+          notEmpty: {msg: "Password is required"},
         },
-      },
-      google_id: {
-        type: DataTypes.STRING,
-        unique: {
-          msg: "Google account already linked to another user",
-        },
-      },
-      provider: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: "manual",
       },
     },
     {
       sequelize,
       modelName: "User",
-      hooks: {
-        beforeValidate(user) {
-          if (!user.password && !user.google_id) {
-            throw new Error("Either password or Google ID must be provided");
-          }
-        },
-      },
-      timestamps: true,
     }
   );
   User.beforeCreate((user) => {
-    if (user.password && user.password !== "") {
-      user.password = hashPassword(user.password);
-    }
+    user.password = hashPassword(user.password);
   });
-
-  User.beforeUpdate((user) => {
-    if (user.changed("password") && user.password) {
-      user.password = hashPassword(user.password);
-    }
-  });
-
   return User;
 };
