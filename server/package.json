@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/YanbiPanjaitan/IP-Yanbi#readme",
   "dependencies": {
+    "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

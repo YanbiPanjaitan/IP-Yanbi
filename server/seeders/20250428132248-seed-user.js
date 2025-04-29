@@ -1,5 +1,8 @@
 "use strict";
 
+const fs = require("fs").promises;
+const {hashPassword} = require("../helpers/bcrypt");
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -12,25 +15,16 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    const usersDataPath = path.join(__dirname, "../data/users.json");
-    const usersData = JSON.parse(fs.readFileSync(usersDataPath, "utf8"));
-
-    const users = usersData.map((user) => {
-      const hashedPassword = user.google_id
-        ? null
-        : hashPassword(user.password || "");
-
-      return {
-        username: user.username,
-        email: user.email,
-        password: hashedPassword,
-        google_id: user.google_id || null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-    });
-
-    await queryInterface.bulkInsert("Users", users, {});
+    let data = JSON.parse(await fs.readFile("./data/users.json", "utf-8")).map(
+      (el) => {
+        delete el.id;
+        el.password = hashPassword(el.password);
+        el.createdAt = new Date();
+        el.updatedAt = new Date();
+        return el;
+      }
+    );
+    await queryInterface.bulkInsert("Users", data);
   },
 
   async down(queryInterface, Sequelize) {
@@ -40,6 +34,10 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete("Users", null, {});
+    await queryInterface.bulkDelete("Users", null, {
+      truncate: true,
+      cascade: true,
+      restartIdentity: true,
+    });
   },
 };
