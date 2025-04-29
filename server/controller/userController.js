@@ -67,9 +67,7 @@ class UserController {
       const token = signToken({id: user.id});
       res.status(created ? 201 : 200).json({access_token: token});
     } catch (error) {
-      console.log(error);
-
-      res.status(500).json({message: "Internal server error"});
+      next(error);
     }
   }
 }
