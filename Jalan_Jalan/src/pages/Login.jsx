@@ -42,7 +42,7 @@ export default function LoginPage() {
       const {data: response} = await axios({
         method: "POST",
         url: "http://localhost:3000/login",
-        data: { email, password },
+        data: {email, password},
       });
       localStorage.setItem("access_token", response.access_token);
       navigate("/");
@@ -59,56 +59,66 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="d-flex flex-grow-1">
-      <div className="w-50 d-flex justify-content-center align-items-center">
-        <form className="form w-100 p-5" onSubmit={handleLogin}>
-          <div className="mb-4">
-            <h1 className="fw-bold">Login to your account</h1>
-            <h6>Welcome back!</h6>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">
-              Email
-            </label>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              u
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="mt-4 d-flex gap-2 justify-content-center">
-            <button type="submit" className="btn btn-danger w-50">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-600 to-purple-600">
+      <div className="flex justify-center w-full px-4">
+        <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
+          <h2 className="text-3xl font-semibold text-center text-gray-800 mb-4">
+            Login to Your Account
+          </h2>
+          <p className="text-center text-gray-600 mb-6">
+            Welcome back! Please login to continue.
+          </p>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="flex flex-col">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="email"
+                value={email}
+                placeholder="Enter your email"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="password"
+                value={password}
+                placeholder="Enter your password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300">
               Login
             </button>
-            <div className="d-flex align-items-center">
-              <p className="m-0 text-center">or</p>
-            </div>
-            <div className="w-50" id="buttonDiv"></div>
-          </div>
-          <p className="text-center mt-3">
-            Don't have account?{" "}
-            <Link to={"/register"} className="text-danger">
-              Create an account
-            </Link>
-          </p>
-        </form>
+            <div className="text-center text-gray-500 my-4">or</div>
+            <div
+              id="buttonDiv"
+              className="flex justify-center w-full mb-6"></div>
+            <p className="text-center text-sm text-gray-600">
+              Don’t have an account?{" "}
+              <Link to="/register" className="text-blue-600 hover:underline">
+                Register here
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
-      <div className="w-50 cooking-bg"></div>
     </div>
   );
 }

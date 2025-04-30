@@ -5,7 +5,7 @@ const axios = require("axios");
 class CountryController {
   static async getAllCountries(req, res, next) {
     try {
-      const {filter, page = 1, limit = 20, search, name} = req.query;
+      const {filter, page = 1, limit = 20, search} = req.query;
       const paramsQuerySQL = {where: {}};
 
       // search filter
@@ -148,7 +148,7 @@ class CountryController {
         return res.status(404).json({error: "Coordinates not found."});
       }
 
-      const {lat, lng} = location;
+      const {lat, lng} = location;git 
 
       res.status(200).json({
         country: country.name,
