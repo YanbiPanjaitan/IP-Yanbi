@@ -78,8 +78,22 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
-      latitude: DataTypes.FLOAT,
-      longitude: DataTypes.FLOAT,
+      latitude: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        validate: {
+          notNull: {msg: "Latitude is required"},
+          isFloat: {msg: "Latitude must be a number"},
+        },
+      },
+      longitude: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        validate: {
+          notNull: {msg: "Longitude is required"},
+          isFloat: {msg: "Longitude must be a number"},
+        },
+      },
     },
     {
       sequelize,

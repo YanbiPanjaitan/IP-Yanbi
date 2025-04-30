@@ -1,16 +1,19 @@
-const {Recipe} = require("../models");
+const {Review} = require("../models");
 
 const guardOwner = async (req, res, next) => {
   try {
-    const recipeId = req.params.id;
-    const recipe = await Recipe.findByPk(recipeId);
-    if (!recipe) {
-      return next({statusCode: 404, message: "Recipe not found"});
+    const reviewId = req.params.id;
+    const review = await Review.findByPk(reviewId);
+
+    if (!review) {
+      return next({statusCode: 404, message: "Review not found"});
     }
-    if (recipe.UserId !== req.user.id) {
+
+    if (review.userId !== req.user.id) {
       return next({statusCode: 403, message: "Forbidden"});
     }
-    req.recipe = recipe;
+
+    req.review = review;
     next();
   } catch (error) {
     next(error);

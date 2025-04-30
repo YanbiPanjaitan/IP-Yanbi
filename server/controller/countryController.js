@@ -1,7 +1,7 @@
-const {Country} = require("../models");
+const {Country, Review} = require("../models");
 const {Op} = require("sequelize");
 const {generateContent} = require("../helpers/gemini");
-// const {GoogleMapsAPI, unsplashAPI} = require("../he");
+const axios = require("axios");
 class CountryController {
   static async getAllCountries(req, res, next) {
     try {
@@ -58,7 +58,6 @@ class CountryController {
     try {
       const countryId = req.params.id;
 
-      // 1. Ambil data negara
       const country = await Country.findByPk(countryId);
       if (!country) {
         throw {
@@ -67,10 +66,10 @@ class CountryController {
         };
       }
 
-      // 2. Ambil semua review terkait country tersebut
+      // 2.Mengambil review suatu negara
       const reviews = await Review.findAll({
         where: {countryId},
-        attributes: ["content"], // asumsikan field isi review bernama `content`
+        attributes: ["comment"], // diasumsikan menjadi review
       });
 
       if (reviews.length === 0) {
@@ -80,14 +79,14 @@ class CountryController {
         });
       }
 
-      // 3. Gabungkan semua review jadi 1 teks panjang
+      // 3.Gabungkan semua reviews
       const allReviewsText = reviews.map((r) => r.content).join(" ");
 
-      // 4. Buat prompt untuk AI
+      // 4. Prompt AI
       const prompt = `Buat ringkasan berdasarkan ulasan-ulasan berikut tentang negara ${country.name}:\n${allReviewsText}`;
 
-      // 5. Kirim ke AI (misal: Gemini atau OpenAI)
-      const summary = await generateContent(prompt); // pastikan generateContent mengembalikan string
+      // 5. Mengitimkan prompt ke AI
+      const summary = await generateContent(prompt);
 
       res.status(200).json({
         country: country.name,
@@ -97,29 +96,6 @@ class CountryController {
       next(error);
     }
   }
-
-  // static async generatesummary(req, res, next) {
-  //   try {
-  //     const countryId = req.params.id;
-  //     const country = await Country.findByPk(countryId);
-  //     if (!country) {
-  //       throw {
-  //         name: "NotFound",
-  //         message: `Country with id ${countryId} not found`,
-  //       };
-  //     }
-
-  //     const prompt = `Generate a summary for the country ${country.name}, including its capital (${country.capital}), region (${country.region}), and population (${country.population}).`;
-  //     const summary = await generateContent(prompt);
-
-  //     res.status(200).json({
-  //       country: country.name,
-  //       summary,
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
   static async unsplash(req, res, next) {
     try {
       const countryId = req.params.id;
@@ -148,24 +124,35 @@ class CountryController {
 
   static async googleMaps(req, res, next) {
     try {
-      const countryId = req.params.id;
-      const country = await Country.findByPk(countryId);
+      const {id} = req.params;
+
+      const country = await Country.findByPk(id);
+
       if (!country) {
-        throw {
-          name: "NotFound",
-          message: `Country with id ${countryId} not found`,
-        };
+        return res.status(404).json({error: "Country not found in database."});
       }
 
-      const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${country.name}&key=${GOOGLE_MAPS_API_KEY}`
+      const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+      console.log("Mencari koordinat untuk:", country.name);
+
+      const geoResponse = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          country.name
+        )}&key=${apiKey}`
       );
-      const data = await response.json();
+      console.log("GeoResponse:", JSON.stringify(geoResponse.data, null, 2));
+
+      const location = geoResponse.data.results[0]?.geometry?.location;
+
+      if (!location) {
+        return res.status(404).json({error: "Coordinates not found."});
+      }
+
+      const {lat, lng} = location;
 
       res.status(200).json({
         country: country.name,
-        location: data.results,
+        coordinates: {lat, lng},
       });
     } catch (error) {
       next(error);

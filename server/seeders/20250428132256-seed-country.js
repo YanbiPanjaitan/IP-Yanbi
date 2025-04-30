@@ -23,6 +23,8 @@ module.exports = {
     });
 
     const countries = sortedCountries.map((country) => {
+      const [latitude, longitude] = country.latlng || [null, null];
+
       return {
         name: country.name.common || "Unknown Country",
         capital:
@@ -35,6 +37,8 @@ module.exports = {
           country.flags?.svg ||
           country.flags?.png ||
           "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/No_flag.svg/225px-No_flag.svg.png",
+        latitude: latitude || null,
+        longitude: longitude || null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
