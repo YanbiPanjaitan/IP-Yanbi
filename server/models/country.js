@@ -78,11 +78,12 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      latitude: DataTypes.FLOAT,
+      longitude: DataTypes.FLOAT,
     },
     {
       sequelize,
       modelName: "Country",
-      timestamps: true,
     }
   );
   return Country;
