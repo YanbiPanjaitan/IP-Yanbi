@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 3,
+        defaultValue: 1,
         validate: {
           notNull: {msg: "Rating is required"},
           notEmpty: {msg: "Rating is required"},

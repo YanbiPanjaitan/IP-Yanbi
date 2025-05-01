@@ -22,13 +22,19 @@ export default function Navbar() {
     <nav className="bg-gradient-to-r from-blue-600 to-purple-600 shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center text-white">
         <div className="flex items-center space-x-6">
-          <Link to="/" className="text-xl font-bold hover:underline">
-            Home
+          {/* Ganti "Home" dengan logo "Jalan Jalan" */}
+          <Link
+            to="/"
+            className="text-xl font-bold hover:underline flex items-center space-x-2">
+            <img src="/logo.png" alt="Jalan Jalan Logo" className="w-8 h-8" />
+            <span>Jalan Jalan</span>
           </Link>
+
+          {/* Ganti "My Favorite" jadi "Home" */}
           <Link
             to="/myfavorite"
             className="text-md font-medium hover:underline">
-            My Favorite
+            Home
           </Link>
         </div>
         <div>

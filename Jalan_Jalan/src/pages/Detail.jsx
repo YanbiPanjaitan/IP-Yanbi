@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {useParams, useNavigate} from "react-router";
+import {useParams} from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Navbar from "../component/Navbar";
@@ -13,8 +13,8 @@ export default function Detail() {
   const [mapUrl, setMapUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [newReview, setNewReview] = useState({rating: "", comment: ""});
-
-  const access_token = localStorage.getItem("access_token");
+  const [accessToken] = useState(localStorage.getItem("access_token"));
+  const [isCommentVisible, setIsCommentVisible] = useState(false); // State untuk kontrol visibilitas form komentar
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +29,13 @@ export default function Detail() {
           ]);
 
         setCountry(countryRes.data);
-        setReviews(reviewsRes.data);
+        setReviews(
+          Array.isArray(reviewsRes.data)
+            ? reviewsRes.data
+            : Array.isArray(reviewsRes.data.reviews)
+            ? reviewsRes.data.reviews
+            : []
+        );
         setSummary(summaryRes.data.summary);
         setPhotos(unsplashRes.data.photos);
         setMapUrl(mapRes.data.mapUrl);
@@ -46,7 +52,7 @@ export default function Detail() {
   const handleDeleteReview = async (reviewId) => {
     try {
       await axios.delete(`/reviews/${reviewId}`, {
-        headers: {Authorization: `Bearer ${access_token}`},
+        headers: {Authorization: `Bearer ${accessToken}`},
       });
       setReviews(reviews.filter((review) => review.id !== reviewId));
       Swal.fire("Deleted!", "Your review has been deleted.", "success");
@@ -58,12 +64,20 @@ export default function Detail() {
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
+
+    // Validasi rating antara 1 dan 5
+    if (newReview.rating < 1 || newReview.rating > 5) {
+      Swal.fire("Error!", "Rating must be between 1 and 5.", "error");
+      return;
+    }
+
     try {
       const response = await axios.post(`/countries/${id}/reviews`, newReview, {
-        headers: {Authorization: `Bearer ${access_token}`},
+        headers: {Authorization: `Bearer ${accessToken}`},
       });
       setReviews([...reviews, response.data]);
       setNewReview({rating: "", comment: ""});
+      setIsCommentVisible(false); // Menyembunyikan form setelah berhasil submit
       Swal.fire("Success!", "Your review has been added.", "success");
     } catch (error) {
       console.error("Error adding review:", error);
@@ -71,112 +85,147 @@ export default function Detail() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!country) return <p>Country not found.</p>;
+  if (loading)
+    return <p className="text-center mt-10 text-white">Loading...</p>;
+  if (!country)
+    return <p className="text-center mt-10 text-white">Country not found.</p>;
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-600">
       <Navbar />
-      <div className="p-4">
-        <h1 className="text-3xl font-bold mb-4">{country.name}</h1>
-        <p className="text-lg mb-2">
-          <strong>Region:</strong> {country.region}
-        </p>
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h1 className="text-4xl font-bold text-center mb-6 text-gray-800">
+            {country.name}
+          </h1>
 
-        {/* Unsplash Photos */}
-        <h2 className="text-2xl font-semibold mb-2">Photos</h2>
-        {Array.isArray(photos) && photos.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {photos.map((photo) => (
-              <img
-                key={photo.id}
-                src={photo.urls.small}
-                alt={photo.alt_description}
-                className="w-full h-40 object-cover rounded-lg"
-              />
-            ))}
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <p className="text-lg text-gray-700 mb-2">
+                <strong>Region:</strong> {country.region}
+              </p>
+              <p className="text-lg text-gray-700 mb-2">
+                <strong>Capital:</strong> {country.capital}
+              </p>
+              <p className="text-lg text-gray-700 mb-2">
+                <strong>Population:</strong> {country.population}
+              </p>
+            </div>
+            <div className="w-full h-64">
+              {mapUrl ? (
+                <iframe
+                  title="Google Maps"
+                  width="100%"
+                  height="100%"
+                  className="rounded-lg"
+                  loading="lazy"
+                  src={mapUrl}
+                  allowFullScreen
+                />
+              ) : (
+                <p>Map not available.</p>
+              )}
+            </div>
           </div>
-        ) : (
-          <p>No photos found.</p>
-        )}
 
-        {/* AI Summary */}
-        <h2 className="text-2xl font-semibold mb-2">Summary</h2>
-        <p className="mb-4">{summary}</p>
-
-        {/* Google Map */}
-        <h2 className="text-2xl font-semibold mb-2">Map</h2>
-        {mapUrl ? (
-          <iframe
-            title="Google Maps"
-            width="100%"
-            height="400"
-            loading="lazy"
-            className="rounded-lg mb-4"
-            src={mapUrl}
-            allowFullScreen
-          />
-        ) : (
-          <p>Map not available.</p>
-        )}
-
-        {/* Add Review Form */}
-        {access_token && (
-          <form onSubmit={handleSubmitReview} className="mb-4">
-            <h3 className="text-xl font-semibold mb-2">Add a Review</h3>
-            <div className="mb-2">
-              <label className="block text-sm font-medium mb-1">Rating:</label>
-              <input
-                type="number"
-                min="1"
-                max="5"
-                value={newReview.rating}
-                onChange={(e) =>
-                  setNewReview({...newReview, rating: e.target.value})
-                }
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              />
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Photos</h2>
+          {Array.isArray(photos) && photos.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {photos.map((photo) => (
+                <img
+                  key={photo.id}
+                  src={photo.urls.small}
+                  alt={photo.alt_description}
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+              ))}
             </div>
-            <div className="mb-2">
-              <label className="block text-sm font-medium mb-1">Comment:</label>
-              <textarea
-                value={newReview.comment}
-                onChange={(e) =>
-                  setNewReview({...newReview, comment: e.target.value})
-                }
-                className="w-full border rounded-lg px-3 py-2"
-                rows="3"
-                required></textarea>
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg">
-              Submit Review
-            </button>
-          </form>
-        )}
-        {Array.isArray(reviews) && reviews.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {reviews.map((review) => (
-              <div
-                key={review.id}
-                className="p-4 border rounded-lg shadow-md bg-white">
-                <p className="text-lg font-semibold">Rating: {review.rating}</p>
-                <p className="text-gray-700 mb-2">{review.comment}</p>
-                {access_token && (
+          ) : (
+            <p className="mb-4 text-gray-600">No photos found.</p>
+          )}
+
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            AI Summary
+          </h2>
+          <p className="text-gray-700 mb-6">{summary}</p>
+
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Reviews</h2>
+          {Array.isArray(reviews) && reviews.length > 0 ? (
+            <ul className="space-y-4 mb-6">
+              {reviews.map((review) => (
+                <li key={review.id} className="border p-4 rounded-lg">
+                  <p className="font-semibold">Rating: {review.rating} / 5</p>
+                  <p className="text-gray-700">{review.comment}</p>
+                  {accessToken && (
+                    <button
+                      onClick={() => handleDeleteReview(review.id)}
+                      className="text-red-500 mt-2 hover:underline text-sm">
+                      Delete
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600 mb-6">No reviews yet.</p>
+          )}
+
+          {accessToken && (
+            <div>
+              <button
+                onClick={() => setIsCommentVisible(!isCommentVisible)} // Toggle visibility
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-4">
+                Create Comment
+              </button>
+
+              {/* Kolom komentar hanya muncul jika isCommentVisible true */}
+              {isCommentVisible && (
+                <form onSubmit={handleSubmitReview}>
+                  <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                    Add a Review
+                  </h3>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Rating (1-5)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="5"
+                      value={newReview.rating}
+                      onChange={(e) => {
+                        // Batasi agar rating tetap antara 1 dan 5
+                        const value = Math.min(5, Math.max(1, e.target.value));
+                        setNewReview({...newReview, rating: value});
+                      }}
+                      className="w-full border bg-blue-300 px-3 py-2 rounded-lg"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Comment
+                    </label>
+                    <textarea
+                      rows="3"
+                      value={newReview.comment}
+                      onChange={(e) =>
+                        setNewReview({...newReview, comment: e.target.value})
+                      }
+                      className="w-full border bg-blue-300 text-white px-3 py-2 rounded-lg"
+                      required
+                    />
+                  </div>
                   <button
-                    onClick={() => handleDeleteReview(review.id)}
-                    className="text-red-500 hover:underline">
-                    Delete
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Submit Review
                   </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No reviews available for this country.</p>
-        )}
+                </form>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
