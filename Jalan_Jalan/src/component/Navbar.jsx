@@ -1,55 +1,52 @@
-import React, {useState, useEffect} from "react";
+import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router";
 
-const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("accessToken")
-  );
+export default function Navbar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("accessToken"));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem("access_token");
     setIsLoggedIn(false);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
-    <nav className="flex justify-between items-center p-4 bg-blue-500">
-      <div className="text-xl font-bold">Jalan-Jalan</div>
-      <ul className="flex gap-4">
-        <li className="nav-item">
-          <Link to="/">Home</Link>
-        </li>
-        {isLoggedIn ? (
-          <li className="nav-item">
+    <nav className="bg-gradient-to-r from-blue-600 to-purple-600 shadow-md">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center text-white">
+        <div className="flex items-center space-x-6">
+          <Link to="/" className="text-xl font-bold hover:underline">
+            Home
+          </Link>
+          <Link
+            to="/myfavorite"
+            className="text-md font-medium hover:underline">
+            My Favorite
+          </Link>
+        </div>
+        <div>
+          {isLoggedIn ? (
             <button
               onClick={handleLogout}
-              className="nav-link active text-red-500">
+              className="bg-white text-blue-600 font-semibold py-1.5 px-4 rounded-lg hover:bg-gray-100 transition">
               Logout
             </button>
-          </li>
-        ) : (
-          <li className="nav-item">
-            <Link to="/login" className="nav-link active text-blue-500">
+          ) : (
+            <Link
+              to="/login"
+              className="bg-white text-blue-600 font-semibold py-1.5 px-4 rounded-lg hover:bg-gray-100 transition">
               Login
             </Link>
-          </li>
-        )}
-      </ul>
+          )}
+        </div>
+      </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
