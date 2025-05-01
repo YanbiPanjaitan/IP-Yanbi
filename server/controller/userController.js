@@ -64,20 +64,22 @@ class UserController {
       });
 
       const payload = ticket.getPayload();
+      console.log("Google Login Payload:", payload);
       const username = payload.email.split("@")[0];
 
-      const [user, created] = await User.findOrCreate({
-        where: {email: payload.email},
-        defaults: {
+      let user = await User.findOne({where: {email: payload.email}});
+
+      if (!user) {
+        user = await User.create({
           email: payload.email,
           username,
           password: Math.random().toString(36).slice(-8),
-        },
-        hooks: false,
-      });
+        });
+        console.log("New User Created:", user);
+      }
 
       const token = signToken({id: user.id});
-      res.status(created ? 201 : 200).json({access_token: token});
+      res.status(200).json({access_token: token});
     } catch (error) {
       next(error);
     }

@@ -72,7 +72,7 @@ export default function Detail() {
     }
 
     try {
-      const response = await axios.post(`/countries/${id}/reviews`, newReview, {
+      const response = await axios.post(`http://localhost:3000/countries/${id}/reviews`, newReview, {
         headers: {Authorization: `Bearer ${accessToken}`},
       });
       setReviews([...reviews, response.data]);

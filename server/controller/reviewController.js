@@ -4,9 +4,8 @@ class ReviewController {
   static async getByCountryId(req, res, next) {
     try {
       const countryId = req.params.id;
-      const userId = req.user.id; // Mendapatkan id pengguna dari token
+      const userId = req.user.id;
 
-      // Mencari review berdasarkan countryId dan userId
       const reviews = await Review.findAll({
         where: {
           countryId: countryId,
@@ -30,14 +29,12 @@ class ReviewController {
     try {
       const {rating, comment} = req.body;
 
-      // Log data yang diterima
       console.log("Received review data:", {rating, comment});
 
       if (!rating || !comment) {
         throw {name: "BadRequest", message: "All fields are required"};
       }
 
-      // Proses pembuatan review
       const review = await Review.create({
         userId: req.user.id,
         countryId: req.params.id,
@@ -47,6 +44,7 @@ class ReviewController {
 
       res.status(201).json(review);
     } catch (error) {
+      console.error("Error in create review:", error);
       next(error);
     }
   }
