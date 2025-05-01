@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {Link, useNavigate} from "react-router";
 import axios from "axios";
 import Navbar from "../component/Navbar";
@@ -8,6 +8,13 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   async function handleRegister(e) {
     e.preventDefault();

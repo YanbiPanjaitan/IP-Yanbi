@@ -8,21 +8,18 @@ class CountryController {
       const {filter, page = 1, limit = 20, search} = req.query;
       const paramsQuerySQL = {where: {}};
 
-      // search filter
       if (search) {
         paramsQuerySQL.where.name = {
           [Op.iLike]: `%${search}%`,
         };
       }
 
-      // name filter
       if (filter) {
         paramsQuerySQL.where.region = {
           [Op.iLike]: `%${filter}%`,
         };
       }
 
-      // pagination
       paramsQuerySQL.limit = parseInt(limit);
       paramsQuerySQL.offset = parseInt(limit) * (parseInt(page) - 1);
 
@@ -65,11 +62,9 @@ class CountryController {
           message: `Country with id ${countryId} not found`,
         };
       }
-
-      // 2.Mengambil review suatu negara
       const reviews = await Review.findAll({
         where: {countryId},
-        attributes: ["comment"], // diasumsikan menjadi review
+        attributes: ["comment"],
       });
 
       if (reviews.length === 0) {
@@ -78,16 +73,9 @@ class CountryController {
           summary: `Belum ada review untuk ${country.name}.`,
         });
       }
-
-      // 3.Gabungkan semua reviews
-      const allReviewsText = reviews.map((r) => r.content).join(" ");
-
-      // 4. Prompt AI
+      const allReviewsText = reviews.map((r) => r.comment).join(" ");
       const prompt = `Buat ringkasan berdasarkan ulasan-ulasan berikut tentang negara ${country.name}:\n${allReviewsText}`;
-
-      // 5. Mengitimkan prompt ke AI
       const summary = await generateContent(prompt);
-
       res.status(200).json({
         country: country.name,
         summary,
@@ -148,13 +136,18 @@ class CountryController {
         return res.status(404).json({error: "Coordinates not found."});
       }
 
-      const {lat, lng} = location;git 
+      const {lat, lng} = location;
 
       res.status(200).json({
         country: country.name,
         coordinates: {lat, lng},
       });
     } catch (error) {
+      console.error(
+        "Error fetching Google Maps data for country:",
+        country.name,
+        error
+      );
       next(error);
     }
   }

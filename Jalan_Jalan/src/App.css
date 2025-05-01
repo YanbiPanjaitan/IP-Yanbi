@@ -1,2 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+body {
+  color: black; /* Set all text to black */
+}

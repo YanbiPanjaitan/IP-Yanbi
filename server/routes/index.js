@@ -21,10 +21,10 @@ router.get("/countries/:id", CountryController.getById);
 router.get("/countries/:id/summary", CountryController.generatesummary);
 router.get("/countries/:id/unsplash", CountryController.unsplash);
 router.get("/countries/:id/googleMaps", CountryController.googleMaps);
+router.get("/countries/:id/reviews", ReviewController.getByCountryId);
 
 //authentication
 router.use(authenticate);
-router.get("/countries/:id/reviews", ReviewController.getByCountryId);
 router.post("/countries/:id/reviews", ReviewController.create);
 router.put("/reviews/:id", guardOwner, ReviewController.update);
 router.delete("/reviews/:id", guardOwner, ReviewController.delete);

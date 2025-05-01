@@ -5,6 +5,13 @@ const guardOwner = async (req, res, next) => {
     const reviewId = req.params.id;
     const review = await Review.findByPk(reviewId);
 
+    console.log(
+      "Checking ownership for reviewId:",
+      reviewId,
+      "and userId:",
+      req.user.id
+    );
+
     if (!review) {
       return next({statusCode: 404, message: "Review not found"});
     }

@@ -53,6 +53,7 @@ export default function LoginPage() {
         data: {email, password},
       });
       localStorage.setItem("access_token", response.access_token);
+      localStorage.setItem("user_email", response.email); // Simpan email pengguna di localStorage
       navigate("/");
     } catch (error) {
       console.log("🚀 ~ handleLogin ~ error:", error);
