@@ -163,11 +163,10 @@ describe("CountryController error cases", () => {
   });
 
   it("should handle external API error in /unsplash", async () => {
-    jest
-      .spyOn(require("axios"), "get")
-      .mockRejectedValueOnce(new Error("Unsplash error"));
+    global.fetch = jest.fn().mockRejectedValueOnce(new Error("Unsplash error"));
     const res = await request(app).get("/countries/1/unsplash");
     expect(res.status).toBe(500);
+    if (global.fetch.mockRestore) global.fetch.mockRestore();
   });
 
   it("should handle external API error in /unsplash", async () => {
@@ -254,6 +253,16 @@ describe("CountryController 100% coverage", () => {
       .spyOn(require("../models").Country, "findByPk")
       .mockResolvedValueOnce(null);
     const res = await request(app).get("/countries/999999/unsplash");
+    expect(res.status).toBe(404);
+  });
+  it("should return 404 if country not found in summary (edge)", async () => {
+    const res = await request(app).get("/countries/999999999/summary");
+    expect(res.status).toBe(404);
+  });
+
+  it("should return 404 if country not found in unsplash (edge)", async () => {
+    jest.spyOn(require("../models").Country, "findByPk").mockResolvedValueOnce(null);
+    const res = await request(app).get("/countries/999999999/unsplash");
     expect(res.status).toBe(404);
   });
 });

@@ -67,14 +67,12 @@ describe("UserController", () => {
       jest
         .spyOn(require("../helpers/bcrypt"), "comparePassword")
         .mockReturnValue(true);
-      jest
-        .spyOn(require("../helpers/jwt"), "signToken")
-        .mockReturnValue("token");
       const res = await request(app)
         .post("/login")
         .send({email: "loginuser@mail.com", password: "password123"})
         .expect(200);
-      expect(res.body).toHaveProperty("access_token", "token");
+      expect(res.body).toHaveProperty("access_token");
+      expect(typeof res.body.access_token).toBe("string");
       expect(res.body).toHaveProperty("email", "loginuser@mail.com");
     });
 
@@ -145,12 +143,12 @@ describe("UserController", () => {
     jest
       .spyOn(require("../helpers/bcrypt"), "comparePassword")
       .mockReturnValue(true);
-    jest.spyOn(require("../helpers/jwt"), "signToken").mockReturnValue("token");
     const res = await request(app)
       .post("/login")
       .send({email: "login@mail.com", password: "hashed"});
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("access_token", "token");
+    expect(res.body).toHaveProperty("access_token");
+    expect(typeof res.body.access_token).toBe("string");
     expect(res.body).toHaveProperty("email", "login@mail.com");
   });
 
@@ -314,11 +312,11 @@ describe("UserController googleLogin edge cases", () => {
       username: "newgoogle",
       password: "random",
     });
-    jest.spyOn(require("../helpers/jwt"), "signToken").mockReturnValue("token");
     const res = await request(app)
       .post("/auth/google")
       .send({googleToken: "valid"});
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("access_token", "token");
+    expect(res.body).toHaveProperty("access_token");
+    expect(typeof res.body.access_token).toBe("string");
   });
 });
