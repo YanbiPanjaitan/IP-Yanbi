@@ -83,7 +83,12 @@ describe("CountryController", () => {
     });
 
     it("should return AI summary if reviews exist", async () => {
-      // Buat country dan review
+      // Buat user dan country
+      const user = await require("../models").User.create({
+        username: "reviewer",
+        email: "reviewer@mail.com",
+        password: "password123",
+      });
       const country = await Country.create({
         name: "Ailand",
         region: "Asia",
@@ -97,14 +102,18 @@ describe("CountryController", () => {
         countryId: country.id,
         comment: "Negara yang indah!",
         rating: 5,
-        userId: 1,
+        userId: user.id,
       });
-      // Mock generateContent
-      jest.spyOn(require("../helpers/gemini"), "generateContent").mockResolvedValueOnce("Ringkasan AI");
+      jest
+        .spyOn(require("../helpers/gemini"), "generateContent")
+        .mockResolvedValueOnce(
+          "Ringkasan: Ulasan-ulasan tersebut memberikan kesan bahwa negara Ailand adalah negara yang indah."
+        );
       const response = await request(app)
         .get(`/countries/${country.id}/summary`)
         .expect(200);
-      expect(response.body.summary).toBe("Ringkasan AI");
+      expect(response.body.summary).toContain("Ailand");
+      expect(response.body.summary.toLowerCase()).toContain("indah");
     });
   });
 
@@ -127,6 +136,9 @@ describe("CountryController", () => {
 
   describe("GET /countries/:id/googleMaps", () => {
     it("should return Google Maps data", async () => {
+      jest.spyOn(require("axios"), "get").mockResolvedValueOnce({
+        data: {results: [{geometry: {location: {lat: 1, lng: 2}}}]},
+      });
       const response = await request(app)
         .get("/countries/1/googleMaps")
         .expect(200);
@@ -151,7 +163,9 @@ describe("CountryController error cases", () => {
   });
 
   it("should handle external API error in /unsplash", async () => {
-    axios.get.mockRejectedValueOnce(new Error("Unsplash error"));
+    jest
+      .spyOn(require("axios"), "get")
+      .mockRejectedValueOnce(new Error("Unsplash error"));
     const res = await request(app).get("/countries/1/unsplash");
     expect(res.status).toBe(500);
   });
@@ -160,5 +174,86 @@ describe("CountryController error cases", () => {
     axios.get.mockRejectedValueOnce(new Error("Unsplash error"));
     const res = await request(app).get("/countries/1/googleMaps");
     expect(res.status).toBe(500);
+  });
+});
+
+describe("CountryController additional error cases", () => {
+  it("should handle error in getAllCountries (simulate DB error)", async () => {
+    const spy = jest
+      .spyOn(require("../models").Country, "findAndCountAll")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+    const res = await request(app).get("/countries");
+    expect(res.status).toBe(500);
+    spy.mockRestore();
+  });
+
+  it("should handle error in getById (simulate DB error)", async () => {
+    const spy = jest
+      .spyOn(require("../models").Country, "findByPk")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+    const res = await request(app).get("/countries/1");
+    expect(res.status).toBe(500);
+    spy.mockRestore();
+  });
+
+  it("should handle error in generatesummary (simulate DB error)", async () => {
+    const spy = jest
+      .spyOn(require("../models").Country, "findByPk")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+    const res = await request(app).get("/countries/1/summary");
+    expect(res.status).toBe(500);
+    spy.mockRestore();
+  });
+
+  it("should handle error in unsplash (simulate DB error)", async () => {
+    const spy = jest
+      .spyOn(require("../models").Country, "findByPk")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+    const res = await request(app).get("/countries/1/unsplash");
+    expect(res.status).toBe(500);
+    spy.mockRestore();
+  });
+
+  it("should handle error in googleMaps (simulate DB error)", async () => {
+    const spy = jest
+      .spyOn(require("../models").Country, "findByPk")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+    const res = await request(app).get("/countries/1/googleMaps");
+    expect(res.status).toBe(500);
+    spy.mockRestore();
+  });
+});
+
+describe("CountryController 100% coverage", () => {
+  it("should filter countries by search", async () => {
+    const res = await request(app).get("/countries?search=Indo");
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+  it("should filter countries by region", async () => {
+    const res = await request(app).get("/countries?filter=Asia");
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+  it("should return 404 if country not found in summary", async () => {
+    const res = await request(app).get("/countries/999999/summary");
+    expect(res.status).toBe(404);
+  });
+  it("should return 404 if country not found in unsplash", async () => {
+    jest
+      .spyOn(require("../models").Country, "findByPk")
+      .mockResolvedValueOnce(null);
+    const res = await request(app).get("/countries/999999/unsplash");
+    expect(res.status).toBe(404);
   });
 });
