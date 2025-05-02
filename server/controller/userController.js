@@ -41,11 +41,8 @@ class UserController {
         throw {name: "Unauthorized", message: "Invalid email/password"};
       }
       let access_token = signToken({id: user.id, email: user.email});
-      console.log("Login response:", {access_token, email: user.email}); // Log respons login untuk debugging
       res.status(200).json({access_token, email: user.email}); // Sertakan email dalam respons
     } catch (error) {
-      console.log(error, "<<<<");
-
       next(error);
     }
   }
@@ -65,7 +62,6 @@ class UserController {
       });
 
       const payload = ticket.getPayload();
-      console.log("Google Login Payload:", payload);
       const username = payload.email.split("@")[0];
 
       let user = await User.findOne({where: {email: payload.email}});
@@ -76,7 +72,6 @@ class UserController {
           username,
           password: Math.random().toString(36).slice(-8),
         });
-        console.log("New User Created:", user);
       }
 
       const token = signToken({
@@ -84,7 +79,6 @@ class UserController {
         email: user.email,
         username: user.username,
       });
-      console.log("Generated JWT Token:", token);
       res.status(200).json({access_token: token});
     } catch (error) {
       next(error);

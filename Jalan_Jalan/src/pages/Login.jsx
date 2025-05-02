@@ -20,12 +20,10 @@ export default function LoginPage() {
   }, [navigate]);
 
   useEffect(() => {
-    console.log("Google Client ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: async (response) => {
-        console.log("Encoded JWT ID token: " + response.credential);
         const {data} = await axios({
           method: "POST",
           url: "http://localhost:3000/auth/google",
@@ -63,7 +61,6 @@ export default function LoginPage() {
       });
       navigate("/");
     } catch (error) {
-      console.log("🚀 ~ handleLogin ~ error:", error);
       if (error.response?.data?.message) {
         Swal.fire({
           icon: "error",

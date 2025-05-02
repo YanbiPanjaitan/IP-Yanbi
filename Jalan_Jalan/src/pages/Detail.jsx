@@ -58,7 +58,6 @@ export default function Detail() {
   }, [loggedInUserEmail, reviews]);
 
   useEffect(() => {
-    console.log("Reviews data:", reviews);
   }, [reviews]);
 
   const handleDeleteReview = async (reviewId) => {
@@ -112,10 +111,7 @@ export default function Detail() {
 
   const handleEditReview = (review) => {
     if (!review || !review.id) {
-      console.error(
-        "Invalid review object passed to handleEditReview:",
-        review
-      );
+    
       return;
     }
     setEditReview(review);

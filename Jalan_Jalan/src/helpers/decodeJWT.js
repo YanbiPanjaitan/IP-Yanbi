@@ -10,7 +10,6 @@ export const decodeJWT = (token) => {
     );
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error("Failed to decode JWT:", error);
     return null;
   }
 };

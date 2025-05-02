@@ -113,7 +113,6 @@ class CountryController {
   static async googleMaps(req, res, next) {
     try {
       const {id} = req.params;
-
       const country = await Country.findByPk(id);
 
       if (!country) {
@@ -121,14 +120,12 @@ class CountryController {
       }
 
       const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-      console.log("Mencari koordinat untuk:", country.name);
 
       const geoResponse = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
           country.name
         )}&key=${apiKey}`
       );
-      console.log("GeoResponse:", JSON.stringify(geoResponse.data, null, 2));
 
       const location = geoResponse.data.results[0]?.geometry?.location;
 
@@ -143,14 +140,9 @@ class CountryController {
       res.status(200).json({
         country: country.name,
         coordinates: {lat, lng},
-        mapUrl, // Tambahkan URL peta ke respons
+        mapUrl,
       });
     } catch (error) {
-      console.error(
-        "Error fetching Google Maps data for country:",
-        country.name,
-        error
-      );
       next(error);
     }
   }

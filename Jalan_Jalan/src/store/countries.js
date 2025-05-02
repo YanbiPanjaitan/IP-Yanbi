@@ -1,7 +1,6 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Initial State
 const initialState = {
   list: {
     data: [],
@@ -18,7 +17,6 @@ const initialState = {
   error: null,
 };
 
-// Async Thunks for API endpoints
 export const fetchCountries = createAsyncThunk(
   "countries/fetchCountries",
   async ({page = 1, limit = 20, search, filter}) => {
@@ -31,7 +29,6 @@ export const fetchCountries = createAsyncThunk(
   }
 );
 
-// Add a new async thunk for fetching country details
 export const fetchCountryDetails = createAsyncThunk(
   "countries/fetchCountryDetails",
   async (id) => {
@@ -42,7 +39,7 @@ export const fetchCountryDetails = createAsyncThunk(
     return response.data;
   }
 );
-// Redux Slice
+
 const countriesSlice = createSlice({
   name: "countries",
   initialState,

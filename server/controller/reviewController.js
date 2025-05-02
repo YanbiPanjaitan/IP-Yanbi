@@ -6,8 +6,6 @@ class ReviewController {
       const countryId = req.params.id;
       const userId = req.user?.id; // Optional chaining untuk menghindari error jika req.user undefined
 
-      console.log(`Fetching reviews for countryId: ${countryId}`); // Log request details tanpa userId
-
       const reviews = await Review.findAll({
         where: {
           countryId: countryId,
@@ -21,16 +19,11 @@ class ReviewController {
       });
 
       if (reviews.length === 0) {
-        console.info(`No reviews found for countryId: ${countryId}`); // Log info jika tidak ada review
         return res.status(200).json([]); // Kembalikan array kosong dengan status 200
       }
 
       res.status(200).json(reviews);
     } catch (error) {
-      console.error(
-        `Error fetching reviews for countryId: ${req.params.id}`,
-        error
-      ); // Log detailed error
       next(error);
     }
   }
@@ -99,12 +92,8 @@ class ReviewController {
       const {id} = req.params;
 
       if (!id || isNaN(id)) {
-        console.error("Invalid review ID provided:", id);
         return res.status(400).json({message: "Invalid review ID"});
       }
-
-      console.log("Attempting to delete review with ID:", id);
-      console.log("Delete request received for reviewId:", id); // Log tambahan untuk memeriksa permintaan DELETE
 
       const deleted = await Review.destroy({where: {id}});
 

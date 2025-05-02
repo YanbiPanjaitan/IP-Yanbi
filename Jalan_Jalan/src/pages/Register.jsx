@@ -33,7 +33,6 @@ export default function RegisterPage() {
       });
       navigate("/login");
     } catch (error) {
-      console.log("🚀 ~ handleRegister ~ error:", error);
       if (error.response?.data?.message) {
         Swal.fire({
           icon: "error",
