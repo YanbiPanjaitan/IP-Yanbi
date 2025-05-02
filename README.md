@@ -612,7 +612,7 @@ Routes below need authentication (Bearer token):
 
 ---
 
-# P2-Challenge-2 (Client Side)
+# (Client Side)
 
 ## API Documentation
 
