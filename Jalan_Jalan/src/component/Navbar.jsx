@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router";
 import Swal from "sweetalert2";
+import Logo from "../assets/Jalan jalan.png";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -69,15 +70,12 @@ export default function Navbar() {
           to="/"
           className="text-xl font-bold hover:underline flex items-center space-x-2">
           <img
-            src="/logo.png"
+            src={Logo}
             alt="Jalan Jalan Logo"
             className={`transition-all duration-300 ${
-              scrolled ? "w-6 h-6" : "w-8 h-8"
+              scrolled ? "w-8 h-8" : "w-12 h-12"
             }`}
           />
-          <span className={`${scrolled ? "text-base" : "text-xl"}`}>
-            Jalan Jalan
-          </span>
         </Link>
 
         <div className="flex items-center space-x-6">

@@ -2,6 +2,8 @@ import {useEffect, useState} from "react";
 import {Link, Navigate, useNavigate} from "react-router";
 import axios from "axios";
 import Navbar from "../component/Navbar";
+import Logo from "../assets/Jalan jalan.png";
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
   const access_token = localStorage.getItem("access_token");
@@ -54,11 +56,16 @@ export default function LoginPage() {
       });
       localStorage.setItem("access_token", response.access_token);
       localStorage.setItem("user_email", response.email); // Simpan email pengguna di localStorage
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        text: "Welcome back!",
+      });
       navigate("/");
     } catch (error) {
       console.log("🚀 ~ handleLogin ~ error:", error);
       if (error.response?.data?.message) {
-        window.Swal.fire({
+        Swal.fire({
           icon: "error",
           title: "Oops...",
           text: error.response.data.message,
@@ -73,6 +80,9 @@ export default function LoginPage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="flex justify-center w-full px-4">
           <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
+            <div className="flex justify-center mb-6">
+              <img src={Logo} alt="Logo" className="w-20 h-20" />
+            </div>
             <h2 className="text-3xl font-semibold text-center text-gray-800 mb-4">
               Login to Your Account
             </h2>

@@ -2,6 +2,8 @@ import {useState, useEffect} from "react";
 import {Link, useNavigate} from "react-router";
 import axios from "axios";
 import Navbar from "../component/Navbar";
+import Logo from "../assets/Jalan jalan.png";
+import Swal from "sweetalert2";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -24,11 +26,16 @@ export default function RegisterPage() {
         url: "http://localhost:3000/register",
         data: {username, email, password},
       });
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful",
+        text: "You can now log in with your new account!",
+      });
       navigate("/login");
     } catch (error) {
       console.log("🚀 ~ handleRegister ~ error:", error);
       if (error.response?.data?.message) {
-        window.Swal.fire({
+        Swal.fire({
           icon: "error",
           title: "Oops...",
           text: error.response.data.message,
@@ -46,6 +53,9 @@ export default function RegisterPage() {
             <form
               className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl"
               onSubmit={handleRegister}>
+              <div className="flex justify-center mb-6">
+                <img src={Logo} alt="Logo" className="w-20 h-20" />
+              </div>
               <div className="mb-4">
                 <h1 className="text-3xl font-semibold text-center text-gray-800 mb-2">
                   Create Your Account

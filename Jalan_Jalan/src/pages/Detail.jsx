@@ -38,10 +38,10 @@ export default function Detail() {
         setReviews(Array.isArray(reviewsRes.data) ? reviewsRes.data : []);
         setSummary(summaryRes.data.summary);
         setPhotos(unsplashRes.data.photos);
-        setMapUrl(mapRes.data.mapUrl); // Set map URL from response
+        setMapUrl(mapRes.data.mapUrl);
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          setReviews([]); // Set reviews to an empty array
+          setReviews([]);
         } else {
           Swal.fire("Error!", "Failed to fetch data.", "error");
         }
@@ -58,7 +58,7 @@ export default function Detail() {
   }, [loggedInUserEmail, reviews]);
 
   useEffect(() => {
-    console.log("Reviews data:", reviews); // Log data reviews untuk debugging
+    console.log("Reviews data:", reviews);
   }, [reviews]);
 
   const handleDeleteReview = async (reviewId) => {

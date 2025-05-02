@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx jest --verbose --detectOpenHandles --forceExit"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -34,8 +34,8 @@
     "unsplash-js": "^7.0.19"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
+    "jest": "^29.0.0",
     "sequelize-cli": "^6.6.2",
-    "supertest": "^7.1.0"
+    "supertest": "^6.0.0"
   }
 }

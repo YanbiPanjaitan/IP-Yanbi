@@ -69,13 +69,13 @@ export default function HomePage() {
             {list.data.map((country) => (
               <div
                 key={country.id}
-                className="bg-white border rounded-xl shadow-md overflow-hidden">
+                className="bg-white border rounded-xl shadow-md overflow-hidden flex flex-col">
                 <img
                   src={country.flagUrl}
                   alt={`${country.name} flag`}
                   className="w-full h-40 object-cover transition-transform duration-300 ease-in-out hover:scale-105"
                 />
-                <div className="p-4 text-center">
+                <div className="p-4 text-center flex-grow">
                   <h2 className="text-lg font-bold text-gray-800">
                     {country.name}
                   </h2>
