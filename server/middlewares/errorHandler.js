@@ -5,6 +5,9 @@ function errorHandler(err, req, res, next) {
   ) {
     return res.status(400).json({message: err.errors[0].message});
   }
+  if (err.message === "Invalid review ID") {
+    return res.status(400).json({message: err.message});
+  }
   if (err.name === "BadRequest") {
     return res.status(400).json({message: err.message});
   }
@@ -20,7 +23,7 @@ function errorHandler(err, req, res, next) {
   if (err.name === "NotFound") {
     return res.status(404).json({message: err.message});
   }
-  return res.status(500).json({message: "Internal server error"});
+  return res.status(500).json({message: "Internal Server Error"});
 }
 
 module.exports = errorHandler;

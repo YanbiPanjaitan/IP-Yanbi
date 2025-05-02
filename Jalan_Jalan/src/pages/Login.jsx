@@ -20,7 +20,6 @@ export default function LoginPage() {
   }, [navigate]);
 
   useEffect(() => {
-
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: async (response) => {
@@ -53,7 +52,7 @@ export default function LoginPage() {
         data: {email, password},
       });
       localStorage.setItem("access_token", response.access_token);
-      localStorage.setItem("user_email", response.email); // Simpan email pengguna di localStorage
+      localStorage.setItem("user_email", response.email);
       Swal.fire({
         icon: "success",
         title: "Login Successful",
@@ -100,7 +99,6 @@ export default function LoginPage() {
                   value={email}
                   placeholder="Enter your email"
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                 />
               </div>
               <div className="flex flex-col">
@@ -116,7 +114,6 @@ export default function LoginPage() {
                   value={password}
                   placeholder="Enter your password"
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
               </div>
               <button

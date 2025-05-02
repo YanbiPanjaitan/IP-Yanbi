@@ -57,8 +57,7 @@ export default function Detail() {
     reviews.forEach((review) => {});
   }, [loggedInUserEmail, reviews]);
 
-  useEffect(() => {
-  }, [reviews]);
+  useEffect(() => {}, [reviews]);
 
   const handleDeleteReview = async (reviewId) => {
     Swal.fire({
@@ -111,7 +110,6 @@ export default function Detail() {
 
   const handleEditReview = (review) => {
     if (!review || !review.id) {
-    
       return;
     }
     setEditReview(review);
@@ -271,7 +269,6 @@ export default function Detail() {
                         setEditReview({...editReview, rating: value});
                       }}
                       className="w-full border bg-blue-300 px-3 py-2 rounded-lg"
-                      required
                     />
                   </div>
                   <div className="mb-4">
@@ -285,7 +282,6 @@ export default function Detail() {
                         setEditReview({...editReview, comment: e.target.value})
                       }
                       className="w-full border bg-blue-300 text-white px-3 py-2 rounded-lg"
-                      required
                     />
                   </div>
                   <button
@@ -331,7 +327,6 @@ export default function Detail() {
                           setNewReview({...newReview, rating: value});
                         }}
                         className="w-full border bg-blue-300 px-3 py-2 rounded-lg"
-                        required
                       />
                     </div>
                     <div className="mb-4">
@@ -348,7 +343,6 @@ export default function Detail() {
                           })
                         }
                         className="w-full border bg-blue-300 px-3 py-2 rounded-lg"
-                        required
                       />
                     </div>
                     <button

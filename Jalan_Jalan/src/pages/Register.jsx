@@ -76,7 +76,6 @@ export default function RegisterPage() {
                   value={username}
                   placeholder="Enter your username"
                   onChange={(e) => setUsername(e.target.value)}
-                  required
                 />
               </div>
               <div className="flex flex-col mb-4">
@@ -92,7 +91,6 @@ export default function RegisterPage() {
                   value={email}
                   placeholder="Enter your email"
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                 />
               </div>
               <div className="flex flex-col mb-4">
@@ -108,7 +106,6 @@ export default function RegisterPage() {
                   value={password}
                   placeholder="Enter your password"
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
               </div>
               <button

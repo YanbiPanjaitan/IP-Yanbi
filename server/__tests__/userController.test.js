@@ -64,8 +64,12 @@ describe("UserController", () => {
         email: "loginuser@mail.com",
         password: "password123",
       });
-      jest.spyOn(require("../helpers/bcrypt"), "comparePassword").mockReturnValue(true);
-      jest.spyOn(require("../helpers/jwt"), "signToken").mockReturnValue("token");
+      jest
+        .spyOn(require("../helpers/bcrypt"), "comparePassword")
+        .mockReturnValue(true);
+      jest
+        .spyOn(require("../helpers/jwt"), "signToken")
+        .mockReturnValue("token");
       const res = await request(app)
         .post("/login")
         .send({email: "loginuser@mail.com", password: "password123"})
@@ -96,7 +100,9 @@ describe("UserController", () => {
         email: "wronguser@mail.com",
         password: "password123",
       });
-      jest.spyOn(require("../helpers/bcrypt"), "comparePassword").mockReturnValue(false);
+      jest
+        .spyOn(require("../helpers/bcrypt"), "comparePassword")
+        .mockReturnValue(false);
       const res = await request(app)
         .post("/login")
         .send({email: "wronguser@mail.com", password: "wrongpass"})
@@ -107,7 +113,7 @@ describe("UserController", () => {
     it("should return 401 if user not found on login", async () => {
       const res = await request(app)
         .post("/login")
-        .send({ email: "notfound@mail.com", password: "password123" });
+        .send({email: "notfound@mail.com", password: "password123"});
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty("message");
     });
@@ -249,7 +255,7 @@ describe("UserController 100% coverage", () => {
   it("should return 401 if user not found on login", async () => {
     const res = await request(app)
       .post("/login")
-      .send({ email: "notfound@mail.com", password: "password123" });
+      .send({email: "notfound@mail.com", password: "password123"});
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message");
   });
@@ -260,18 +266,19 @@ describe("UserController 100% coverage", () => {
       email: "wrongpass@mail.com",
       password: "hashedpass",
     });
-    jest.spyOn(require("../helpers/bcrypt"), "comparePassword").mockReturnValue(false);
+    jest
+      .spyOn(require("../helpers/bcrypt"), "comparePassword")
+      .mockReturnValue(false);
+    jest.spyOn(require("../helpers/jwt"), "signToken").mockReturnValue("token");
     const res = await request(app)
       .post("/login")
-      .send({ email: "wrongpass@mail.com", password: "wrong" });
+      .send({email: "wrongpass@mail.com", password: "wrong"});
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message");
   });
 
   it("should return 400 if googleToken is missing in googleLogin", async () => {
-    const res = await request(app)
-      .post("/auth/google")
-      .send({});
+    const res = await request(app).post("/auth/google").send({});
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty("message");
   });
@@ -280,9 +287,11 @@ describe("UserController 100% coverage", () => {
 describe("UserController googleLogin edge cases", () => {
   it("should return 500 if verifyIdToken throws error", async () => {
     const {OAuth2Client} = require("google-auth-library");
-    jest.spyOn(OAuth2Client.prototype, "verifyIdToken").mockImplementationOnce(() => {
-      throw new Error("Google error");
-    });
+    jest
+      .spyOn(OAuth2Client.prototype, "verifyIdToken")
+      .mockImplementationOnce(() => {
+        throw new Error("Google error");
+      });
     const res = await request(app)
       .post("/auth/google")
       .send({googleToken: "invalid"});
@@ -293,15 +302,17 @@ describe("UserController googleLogin edge cases", () => {
     const {OAuth2Client} = require("google-auth-library");
     jest.spyOn(OAuth2Client.prototype, "verifyIdToken").mockResolvedValueOnce({
       getPayload: () => ({
-        email: "newgoogle@mail.com"
-      })
+        email: "newgoogle@mail.com",
+      }),
     });
-    jest.spyOn(require("../models").User, "findOne").mockResolvedValueOnce(null);
+    jest
+      .spyOn(require("../models").User, "findOne")
+      .mockResolvedValueOnce(null);
     jest.spyOn(require("../models").User, "create").mockResolvedValueOnce({
       id: 123,
       email: "newgoogle@mail.com",
       username: "newgoogle",
-      password: "random"
+      password: "random",
     });
     jest.spyOn(require("../helpers/jwt"), "signToken").mockReturnValue("token");
     const res = await request(app)
