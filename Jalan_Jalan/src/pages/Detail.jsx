@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {useParams} from "react-router";
+import {useParams, useNavigate} from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Navbar from "../component/Navbar";
@@ -7,6 +7,7 @@ import {decodeJWT} from "../helpers/decodeJWT";
 
 export default function Detail() {
   const {id} = useParams();
+  const navigate = useNavigate();
   const [country, setCountry] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [summary, setSummary] = useState("");
@@ -21,56 +22,27 @@ export default function Detail() {
   const decodedToken = accessToken ? decodeJWT(accessToken) : null;
   const loggedInUserEmail = decodedToken ? decodedToken.email : "unknown";
 
-  console.log(
-    "inilocalstoreage",
-    localStorage,
-    "ini acces token",
-    "access_token",
-    accessToken
-  ); // Log token akses
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [countryRes, reviewsRes, summaryRes, unsplashRes /*, mapRes*/] =
+        const [countryRes, reviewsRes, summaryRes, unsplashRes, mapRes] =
           await Promise.all([
             axios.get(`http://localhost:3000/countries/${id}`),
             axios.get(`http://localhost:3000/countries/${id}/reviews`),
             axios.get(`http://localhost:3000/countries/${id}/summary`),
             axios.get(`http://localhost:3000/countries/${id}/unsplash`),
-            // axios.get(`http://localhost:3000/countries/${id}/googleMaps`),
+            axios.get(`http://localhost:3000/countries/${id}/googleMaps`),
           ]);
 
         setCountry(countryRes.data);
-        console.log("Reviews response:", reviewsRes.data); // Log data dari response reviews
-        console.log(
-          "Processed reviews:",
-          Array.isArray(reviewsRes.data) ? reviewsRes.data : []
-        ); // Log hasil proses reviews
-        if (!Array.isArray(reviewsRes.data)) {
-          console.warn(
-            "Reviews data is not an array. Setting reviews to an empty array."
-          );
-          setReviews([]);
-        } else {
-          setReviews(reviewsRes.data);
-        }
+        setReviews(Array.isArray(reviewsRes.data) ? reviewsRes.data : []);
         setSummary(summaryRes.data.summary);
         setPhotos(unsplashRes.data.photos);
-        // setMapUrl(mapRes.data.mapUrl);
+        setMapUrl(mapRes.data.mapUrl); // Set map URL from response
       } catch (error) {
-        console.log("Fetching reviews for country ID:", id); // Log ID negara
-        console.log(
-          "Error details:",
-          error.response ? error.response.data : error.message
-        ); // Log detail error
         if (error.response && error.response.status === 404) {
-          console.info(
-            "No reviews found for this country. This is expected behavior."
-          );
           setReviews([]); // Set reviews to an empty array
         } else {
-          console.error("Unexpected error fetching data:", error);
           Swal.fire("Error!", "Failed to fetch data.", "error");
         }
       } finally {
@@ -82,23 +54,35 @@ export default function Detail() {
   }, [id]);
 
   useEffect(() => {
-    console.log("Logged in user email:", loggedInUserEmail); // Log email pengguna yang sedang login
-    reviews.forEach((review) => {
-      console.log("Review user email:", review.User?.email); // Log email pengguna pembuat review
-    });
+    reviews.forEach((review) => {});
   }, [loggedInUserEmail, reviews]);
 
+  useEffect(() => {
+    console.log("Reviews data:", reviews); // Log data reviews untuk debugging
+  }, [reviews]);
+
   const handleDeleteReview = async (reviewId) => {
-    try {
-      await axios.delete(`http://localhost:3000/reviews/${reviewId}`, {
-        headers: {Authorization: `Bearer ${accessToken}`},
-      });
-      setReviews(reviews.filter((review) => review.id !== reviewId));
-      Swal.fire("Deleted!", "Your review has been deleted.", "success");
-    } catch (error) {
-      console.error("Error deleting review:", error);
-      Swal.fire("Error!", "Failed to delete review.", "error");
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This review will be deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:3000/reviews/${reviewId}`, {
+            headers: {Authorization: `Bearer ${accessToken}`},
+          });
+          setReviews(reviews.filter((review) => review.id !== reviewId));
+          Swal.fire("Deleted!", "Your review has been deleted.", "success");
+        } catch (error) {
+          Swal.fire("Error!", "Failed to delete review.", "error");
+        }
+      }
+    });
   };
 
   const handleSubmitReview = async (e) => {
@@ -122,12 +106,18 @@ export default function Detail() {
       setIsCommentVisible(false);
       Swal.fire("Success!", "Your review has been added.", "success");
     } catch (error) {
-      console.error("Error adding review:", error);
       Swal.fire("Error!", "Failed to add review.", "error");
     }
   };
 
   const handleEditReview = (review) => {
+    if (!review || !review.id) {
+      console.error(
+        "Invalid review object passed to handleEditReview:",
+        review
+      );
+      return;
+    }
     setEditReview(review);
   };
 
@@ -139,15 +129,15 @@ export default function Detail() {
         {rating: editReview.rating, comment: editReview.comment},
         {headers: {Authorization: `Bearer ${accessToken}`}}
       );
-      setReviews(
-        reviews.map((review) =>
-          review.id === editReview.id ? response.data : review
+      const updatedReview = {...response.data, User: editReview.User};
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review.id === editReview.id ? updatedReview : review
         )
       );
       setEditReview(null);
       Swal.fire("Success!", "Your review has been updated.", "success");
     } catch (error) {
-      console.error("Error updating review:", error);
       Swal.fire("Error!", "Failed to update review.", "error");
     }
   };
@@ -167,7 +157,7 @@ export default function Detail() {
           </h1>
 
           <div className="grid md:grid-cols-2 gap-4 mb-6">
-            <div>
+            <div className="border border-gray-300 rounded-lg p-4 mb-4">
               <p className="text-lg text-gray-700 mb-2">
                 <strong>Region:</strong> {country.region}
               </p>
@@ -178,51 +168,52 @@ export default function Detail() {
                 <strong>Capital:</strong> {country.capital}
               </p>
             </div>
-            <div className="w-full h-64">
-              {mapUrl ? (
-                <iframe
-                  title="Google Maps"
-                  width="100%"
-                  height="100%"
-                  className="rounded-lg"
-                  loading="lazy"
-                  src={mapUrl}
-                  allowFullScreen
-                />
-              ) : (
-                <p>Map not available.</p>
-              )}
-            </div>
           </div>
 
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Photos</h2>
-          {Array.isArray(photos) && photos.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              {photos.map((photo) => (
-                <img
-                  key={photo.id}
-                  src={photo.urls.small}
-                  alt={photo.alt_description}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="mb-4 text-gray-600">No photos found.</p>
-          )}
+          <div className="border border-gray-300 rounded-lg p-4 mb-4">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              Photos
+            </h2>
+            {Array.isArray(photos) && photos.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {photos.map((photo) => (
+                  <img
+                    key={photo.id}
+                    src={photo.urls.small}
+                    alt={photo.alt_description}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-600">No photos found.</p>
+            )}
+          </div>
+
+          <div className="border border-gray-300 rounded-lg p-4 mb-4">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Map</h2>
+            {mapUrl ? (
+              <iframe
+                title="Google Maps"
+                width="100%"
+                height="300"
+                className="rounded-lg"
+                loading="lazy"
+                src={mapUrl}
+                allowFullScreen
+              />
+            ) : (
+              <p className="text-gray-600">Map not available.</p>
+            )}
+          </div>
 
           {accessToken && (
             <>
-              <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              <div className="border border-gray-300 rounded-lg p-4 mb-4">
+                <h2 className="text-center text-2xl font-semibold text-blue-600 mb-2">
                   AI Summary
                 </h2>
                 <p className="text-gray-700 mb-6">{summary}</p>
-                <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-300"
-                  onClick={() => alert("AI Summary clicked!")}>
-                  Click Here
-                </button>
               </div>
 
               <h2 className="text-2xl font-semibold text-gray-800 mb-2 mt-6">
@@ -239,14 +230,14 @@ export default function Detail() {
                       <p className="font-semibold">
                         Rating: {review.rating} / 5
                       </p>
-                      <p className="font-semibold">
-                        User: {review.User?.username || "Unknown"}
+                      <p className="font-semibold text-blue-600">
+                        {review.User?.username || "Unknown"}
                       </p>
                       <p className="text-gray-700">{review.comment}</p>
                       {review.User?.email === loggedInUserEmail && (
                         <div className="mt-2">
                           <button
-                            onClick={() => handleEditReview(review.id)}
+                            onClick={() => handleEditReview(review)}
                             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition mr-2">
                             Edit
                           </button>
@@ -380,6 +371,13 @@ export default function Detail() {
               </div>
             </>
           )}
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={() => navigate("/")}
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+              Previous
+            </button>
+          </div>
         </div>
       </div>
     </div>

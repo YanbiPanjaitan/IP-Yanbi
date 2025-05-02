@@ -1,19 +1,19 @@
 import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router";
+import Swal from "sweetalert2";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (token) {
-      console.log("JWT Token from localStorage:", token);
       setIsLoggedIn(true);
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
-        console.log("Decoded JWT Payload:", payload);
         if (payload.username) {
           setUsername(payload.username);
         } else if (payload.author) {
@@ -25,43 +25,78 @@ export default function Navbar() {
           setUsername("Unknown");
         }
       } catch (error) {
-        console.error("Failed to parse token", error);
         setUsername("Unknown");
       }
+    } else {
+      setIsLoggedIn(false);
     }
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    setIsLoggedIn(false);
-    navigate("/");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("access_token");
+        setIsLoggedIn(false);
+        Swal.fire("Logged out!", "You have been logged out.", "success");
+        navigate("/");
+      }
+    });
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 to-purple-600 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center text-white">
+    <nav
+      className={`fixed w-full top-0 z-20 shadow-md bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 ${
+        scrolled ? "py-2" : "py-4"
+      }`}>
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center text-white transition-all duration-300">
+        <Link
+          to="/"
+          className="text-xl font-bold hover:underline flex items-center space-x-2">
+          <img
+            src="/logo.png"
+            alt="Jalan Jalan Logo"
+            className={`transition-all duration-300 ${
+              scrolled ? "w-6 h-6" : "w-8 h-8"
+            }`}
+          />
+          <span className={`${scrolled ? "text-base" : "text-xl"}`}>
+            Jalan Jalan
+          </span>
+        </Link>
+
         <div className="flex items-center space-x-6">
-          {/* Ganti "Home" dengan logo "Jalan Jalan" */}
           <Link
             to="/"
-            className="text-xl font-bold hover:underline flex items-center space-x-2">
-            <img src="/logo.png" alt="Jalan Jalan Logo" className="w-8 h-8" />
-            <span>Jalan Jalan</span>
-          </Link>
-
-          {/* Ganti "My Favorite" jadi "Home" */}
-          <Link to="/" className="text-md font-medium hover:underline">
+            className={`font-semibold hover:underline ${
+              scrolled ? "text-sm" : "text-base"
+            }`}>
             Home
           </Link>
         </div>
 
         <div className="flex items-center space-x-6">
-          {/* Show username if logged in */}
           {isLoggedIn && username && (
-            <span className="text-white">{username}</span>
+            <span className={`${scrolled ? "text-sm" : "text-base"}`}>
+              {username}
+            </span>
           )}
 
-          {/* Conditionally render Login/Register/Logout */}
           {isLoggedIn ? (
             <button
               onClick={handleLogout}

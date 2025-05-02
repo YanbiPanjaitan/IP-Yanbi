@@ -138,9 +138,12 @@ class CountryController {
 
       const {lat, lng} = location;
 
+      const mapUrl = `https://www.google.com/maps/embed/v1/view?key=${apiKey}&center=${lat},${lng}&zoom=6`;
+
       res.status(200).json({
         country: country.name,
         coordinates: {lat, lng},
+        mapUrl, // Tambahkan URL peta ke respons
       });
     } catch (error) {
       console.error(

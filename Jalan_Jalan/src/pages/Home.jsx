@@ -50,12 +50,12 @@ export default function HomePage() {
               placeholder="Search countries..."
               value={search}
               onChange={handleSearchChange}
-              className="input input-bordered w-full md:max-w-xs px-4 py-2 border border-gray-300 rounded-lg"
+              className="w-full md:max-w-xs px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800"
             />
             <select
               value={filter}
               onChange={handleFilterChange}
-              className="select select-bordered w-full md:max-w-xs px-4 py-2 border border-gray-300 rounded-lg">
+              className="w-full md:max-w-xs px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800">
               <option value="">All Regions</option>
               <option value="Africa">Africa</option>
               <option value="Americas">Americas</option>
@@ -73,7 +73,7 @@ export default function HomePage() {
                 <img
                   src={country.flagUrl}
                   alt={`${country.name} flag`}
-                  className="w-full h-40 object-cover"
+                  className="w-full h-40 object-cover transition-transform duration-300 ease-in-out hover:scale-105"
                 />
                 <div className="p-4 text-center">
                   <h2 className="text-lg font-bold text-gray-800">

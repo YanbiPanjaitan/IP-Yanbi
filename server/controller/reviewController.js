@@ -49,7 +49,11 @@ class ReviewController {
         comment,
       });
 
-      res.status(201).json(review);
+      const createdReview = await Review.findByPk(review.id, {
+        include: [{model: User, attributes: ["username", "email"]}],
+      });
+
+      res.status(201).json(createdReview);
     } catch (error) {
       next(error);
     }
@@ -80,7 +84,11 @@ class ReviewController {
         throw {name: "NotFound", message: "Review not found"};
       }
 
-      res.status(200).json(updatedReviews[0]);
+      const updatedReview = await Review.findByPk(id, {
+        include: [{model: User, attributes: ["username", "email"]}],
+      });
+
+      res.status(200).json(updatedReview);
     } catch (error) {
       next(error);
     }
