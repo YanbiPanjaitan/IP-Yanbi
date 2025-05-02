@@ -25,7 +25,7 @@ export default function LoginPage() {
       callback: async (response) => {
         const {data} = await axios({
           method: "POST",
-          url: "http://localhost:3000/auth/google",
+          url: "https://ip-yanbi.yanbipanjaitan.space/auth/google",
           data: {googleToken: response.credential},
         });
         localStorage.setItem("access_token", data.access_token);
@@ -48,7 +48,7 @@ export default function LoginPage() {
     try {
       const {data: response} = await axios({
         method: "POST",
-        url: "http://localhost:3000/login",
+        url: "https://ip-yanbi.yanbipanjaitan.space/login",
         data: {email, password},
       });
       localStorage.setItem("access_token", response.access_token);

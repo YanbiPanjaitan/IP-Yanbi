@@ -22,7 +22,7 @@ export const fetchCountries = createAsyncThunk(
   async ({page = 1, limit = 20, search, filter}) => {
     const response = await axios({
       method: "GET",
-      url: "http://localhost:3000/countries",
+      url: "https://ip-yanbi.yanbipanjaitan.space/countries",
       params: {page, limit, search, filter},
     });
     return response.data;
@@ -34,7 +34,7 @@ export const fetchCountryDetails = createAsyncThunk(
   async (id) => {
     const response = await axios({
       method: "GET",
-      url: `http://localhost:3000/countries/${id}`,
+      url: `https://ip-yanbi.yanbipanjaitan.space/countries/${id}`,
     });
     return response.data;
   }

@@ -27,11 +27,19 @@ export default function Detail() {
       try {
         const [countryRes, reviewsRes, summaryRes, unsplashRes, mapRes] =
           await Promise.all([
-            axios.get(`http://localhost:3000/countries/${id}`),
-            axios.get(`http://localhost:3000/countries/${id}/reviews`),
-            axios.get(`http://localhost:3000/countries/${id}/summary`),
-            axios.get(`http://localhost:3000/countries/${id}/unsplash`),
-            axios.get(`http://localhost:3000/countries/${id}/googleMaps`),
+            axios.get(`https://ip-yanbi.yanbipanjaitan.space/countries/${id}`),
+            axios.get(
+              `https://ip-yanbi.yanbipanjaitan.space/countries/${id}/reviews`
+            ),
+            axios.get(
+              `https://ip-yanbi.yanbipanjaitan.space/countries/${id}/summary`
+            ),
+            axios.get(
+              `https://ip-yanbi.yanbipanjaitan.space/countries/${id}/unsplash`
+            ),
+            axios.get(
+              `https://ip-yanbi.yanbipanjaitan.space/countries/${id}/googleMaps`
+            ),
           ]);
 
         setCountry(countryRes.data);
@@ -71,9 +79,12 @@ export default function Detail() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3000/reviews/${reviewId}`, {
-            headers: {Authorization: `Bearer ${accessToken}`},
-          });
+          await axios.delete(
+            `https://ip-yanbi.yanbipanjaitan.space/reviews/${reviewId}`,
+            {
+              headers: {Authorization: `Bearer ${accessToken}`},
+            }
+          );
           setReviews(reviews.filter((review) => review.id !== reviewId));
           Swal.fire("Deleted!", "Your review has been deleted.", "success");
         } catch (error) {
@@ -93,7 +104,7 @@ export default function Detail() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/countries/${id}/reviews`,
+        `https://ip-yanbi.yanbipanjaitan.space/countries/${id}/reviews`,
         newReview,
         {
           headers: {Authorization: `Bearer ${accessToken}`},
@@ -119,7 +130,7 @@ export default function Detail() {
     e.preventDefault();
     try {
       const response = await axios.put(
-        `http://localhost:3000/reviews/${editReview.id}`,
+        `https://ip-yanbi.yanbipanjaitan.space/reviews/${editReview.id}`,
         {rating: editReview.rating, comment: editReview.comment},
         {headers: {Authorization: `Bearer ${accessToken}`}}
       );

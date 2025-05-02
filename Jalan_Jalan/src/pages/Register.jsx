@@ -23,7 +23,7 @@ export default function RegisterPage() {
     try {
       await axios({
         method: "POST",
-        url: "http://localhost:3000/register",
+        url: "https://ip-yanbi.yanbipanjaitan.space/register",
         data: {username, email, password},
       });
       Swal.fire({
