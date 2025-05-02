@@ -1,18 +1,18 @@
 const request = require("supertest");
 const app = require("../app");
-const {sequelize, User, Country, Review} = require("../models");
-const {signToken} = require("../helpers/jwt");
+const { sequelize, User, Country, Review } = require("../models");
+const { signToken } = require("../helpers/jwt");
 
 let user, token, country, review;
 
 beforeAll(async () => {
-  await sequelize.sync({force: true});
+  await sequelize.sync({ force: true });
   user = await User.create({
     username: "reviewer",
     email: "reviewer@mail.com",
     password: "password123",
   });
-  token = signToken({id: user.id, email: user.email});
+  token = signToken({ id: user.id, email: user.email });
   country = await Country.create({
     name: "Testland",
     region: "TestRegion",
@@ -81,45 +81,51 @@ describe("ReviewController", () => {
       const res = await request(app)
         .post(`/countries/${country.id}/reviews`)
         .set("Authorization", `Bearer ${token}`)
-        .send({rating: 4, comment: "Nice!"});
+        .send({ rating: 4, comment: "Nice place!" });
       expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty("comment", "Nice!");
+      expect(res.body).toHaveProperty("comment", "Nice place!");
     });
     it("should fail if not authenticated", async () => {
       const res = await request(app)
         .post(`/countries/${country.id}/reviews`)
-        .send({rating: 4, comment: "No token"});
+        .send({ rating: 4, comment: "No token" });
       expect(res.status).toBe(401);
     });
     it("should fail if missing fields", async () => {
       const res = await request(app)
         .post(`/countries/${country.id}/reviews`)
         .set("Authorization", `Bearer ${token}`)
-        .send({rating: 4});
+        .send({ rating: 4 });
       expect(res.status).toBe(400);
     });
   });
 
   describe("PUT /reviews/:id", () => {
     it("should update a review (auth required)", async () => {
+      const newReview = await Review.create({
+        userId: user.id,
+        countryId: country.id,
+        rating: 3,
+        comment: "Old comment",
+      });
       const res = await request(app)
-        .put(`/reviews/${review.id}`)
+        .put(`/reviews/${newReview.id}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({rating: 3, comment: "Updated!"});
+        .send({ rating: 5, comment: "Updated comment" });
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("comment", "Updated!");
+      expect(res.body).toHaveProperty("comment", "Updated comment");
     });
     it("should fail if not authenticated", async () => {
       const res = await request(app)
         .put(`/reviews/${review.id}`)
-        .send({rating: 2, comment: "No token"});
+        .send({ rating: 2, comment: "No token" });
       expect(res.status).toBe(401);
     });
     it("should fail if review not found", async () => {
       const res = await request(app)
         .put(`/reviews/99999`)
         .set("Authorization", `Bearer ${token}`)
-        .send({rating: 2, comment: "Not found"});
+        .send({ rating: 2, comment: "Not found comment" });
       expect(res.status).toBe(404);
     });
   });
